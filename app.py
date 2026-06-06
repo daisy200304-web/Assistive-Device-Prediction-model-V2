@@ -186,7 +186,7 @@ label_map = pipeline.get(
     }
 )
 
-model_name = pipeline.get("model_name", "Random Forest")
+model_name = pipeline.get("model_name", "Machine Learning Model")
 
 # ==========================================
 # 系統說明
@@ -341,6 +341,10 @@ with result_col:
         st.info("請點擊左側按鈕執行預測，結果將顯示於此。")
 
     if predict_btn:
+
+        # ==========================================
+        # 建立輸入資料
+        # ==========================================
         input_dict = {
             "Category of care": category_of_care,
             "Disability level": disability_level,
@@ -356,11 +360,24 @@ with result_col:
             "age": age,
             "master placement": master_placement,
             "official rank": official_rank,
-            "BMI": bmi
+            "BMI": bmi,
+
+            # 模型 assistive_device_v2.pkl 需要的額外特徵
+            # 代表該診斷欄位是否有填寫
+            "has_ICD10CM_CODE": 1 if icd_main != 0 else 0,
+            "has_ICD10CM_CODE_1": 1 if icd_1 != 0 else 0,
+            "has_ICD10CM_CODE_2": 1 if icd_2 != 0 else 0,
+            "has_ICD10CM_CODE_3": 1 if icd_3 != 0 else 0,
+            "has_ICD10CM_CODE_4": 1 if icd_4 != 0 else 0
         }
 
         try:
             input_df = pd.DataFrame([input_dict])
+
+            # 如果模型 features 裡有前端沒有產生的欄位，先補成 NaN
+            for col in features:
+                if col not in input_df.columns:
+                    input_df[col] = np.nan
 
             # 確保欄位順序與訓練模型時一致
             input_df = input_df[features]
