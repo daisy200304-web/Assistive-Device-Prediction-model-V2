@@ -186,20 +186,19 @@ label_map = pipeline.get(
     }
 )
 
-model_name = pipeline.get("model_name", "Machine Learning Model")
+# 若 pkl 內沒有 model_name，就自動顯示模型類別名稱
+model_name = pipeline.get("model_name", model.__class__.__name__)
 
 # ==========================================
 # 系統說明
+# 已移除「輸入特徵數」欄位
 # ==========================================
-top_col1, top_col2, top_col3 = st.columns([1, 1, 1])
+top_col1, top_col2 = st.columns([1, 1])
 
 with top_col1:
     st.metric("目前模型", model_name)
 
 with top_col2:
-    st.metric("輸入特徵數", f"{len(features)} 項")
-
-with top_col3:
     st.metric("預測類別", "3 類")
 
 st.markdown("""
@@ -342,9 +341,6 @@ with result_col:
 
     if predict_btn:
 
-        # ==========================================
-        # 建立輸入資料
-        # ==========================================
         input_dict = {
             "Category of care": category_of_care,
             "Disability level": disability_level,
@@ -362,7 +358,7 @@ with result_col:
             "official rank": official_rank,
             "BMI": bmi,
 
-            # 模型 assistive_device_v2.pkl 需要的額外特徵
+            # assistive_device_v2.pkl 需要的額外特徵
             # 代表該診斷欄位是否有填寫
             "has_ICD10CM_CODE": 1 if icd_main != 0 else 0,
             "has_ICD10CM_CODE_1": 1 if icd_1 != 0 else 0,
@@ -374,7 +370,7 @@ with result_col:
         try:
             input_df = pd.DataFrame([input_dict])
 
-            # 如果模型 features 裡有前端沒有產生的欄位，先補成 NaN
+            # 若模型 features 裡有前端沒有產生的欄位，先補成 NaN
             for col in features:
                 if col not in input_df.columns:
                     input_df[col] = np.nan
