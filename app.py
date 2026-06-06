@@ -53,25 +53,11 @@ body {
     margin-bottom: 0px;
 }
 
-.info-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 18px 20px;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-    margin-bottom: 16px;
-}
-
 .section-title {
     font-size: 18px;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 10px;
-}
-
-.small-note {
-    color: #64748b;
-    font-size: 14px;
 }
 
 .result-success {
@@ -166,17 +152,30 @@ st.markdown("""
 # ==========================================
 # 載入模型
 # ==========================================
-model_path = "assistive_device_15features.pkl"
+model_path = "assistive_device_v2.pkl"
 
 if not os.path.exists(model_path):
-    st.error("找不到模型檔案 `model_path = "assistive_device_v2.pkl"`，請確認檔案已上傳到 GitHub repository。")
+    st.error(f"找不到模型檔案 `{model_path}`，請確認檔案已上傳到 GitHub repository。")
     st.stop()
 
-pipeline = joblib.load(model_path)
+try:
+    pipeline = joblib.load(model_path)
+except Exception as e:
+    st.error(f"模型檔案載入失敗，請確認 `{model_path}` 是否為正確的 pkl 檔案。詳細錯誤：{e}")
+    st.stop()
 
-model = pipeline["model"]
-features = pipeline["features"]
-median_values = pipeline["median_values"]
+# ==========================================
+# 讀取模型內容
+# ==========================================
+try:
+    model = pipeline["model"]
+    features = pipeline["features"]
+except Exception as e:
+    st.error(f"模型檔案格式不正確，pkl 內應包含 `model` 與 `features`。詳細錯誤：{e}")
+    st.stop()
+
+median_values = pipeline.get("median_values", None)
+imputer = pipeline.get("imputer", None)
 
 label_map = pipeline.get(
     "label_map",
@@ -238,22 +237,86 @@ with col1:
 with col2:
     st.markdown('<div class="section-title">② 臨床評估與身分指標</div>', unsafe_allow_html=True)
 
-    category_of_care = st.number_input("照護類別 Category of care", value=1.0, format="%.1f", step=0.1)
-    disability_level = st.number_input("失能等級 Disability level", value=2.0, format="%.1f", step=0.1)
-    func_type = st.number_input("功能型態 FUNC_TYPE", value=1.0, format="%.1f", step=0.1)
-    master_placement = st.number_input("主要安置 master placement", value=0.0, format="%.1f", step=0.1)
-    official_rank = st.number_input("官方等級 official rank", value=1.0, format="%.1f", step=0.1)
-    address = st.number_input("居住地代碼 address", value=1.0, format="%.1f", step=0.1)
+    category_of_care = st.number_input(
+        "照護類別 Category of care",
+        value=1.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    disability_level = st.number_input(
+        "失能等級 Disability level",
+        value=2.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    func_type = st.number_input(
+        "功能型態 FUNC_TYPE",
+        value=1.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    master_placement = st.number_input(
+        "主要安置 master placement",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    official_rank = st.number_input(
+        "官方等級 official rank",
+        value=1.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    address = st.number_input(
+        "居住地代碼 address",
+        value=1.0,
+        format="%.1f",
+        step=0.1
+    )
 
 with col3:
     st.markdown('<div class="section-title">③ 診斷代碼 ICD-10</div>', unsafe_allow_html=True)
     st.caption("若無相關次要診斷，請維持 0.0")
 
-    icd_main = st.number_input("主診斷 ICD10CM_CODE", value=0.0, format="%.1f", step=0.1)
-    icd_1 = st.number_input("次診斷 1 ICD10CM_CODE_1", value=0.0, format="%.1f", step=0.1)
-    icd_2 = st.number_input("次診斷 2 ICD10CM_CODE_2", value=0.0, format="%.1f", step=0.1)
-    icd_3 = st.number_input("次診斷 3 ICD10CM_CODE_3", value=0.0, format="%.1f", step=0.1)
-    icd_4 = st.number_input("次診斷 4 ICD10CM_CODE_4", value=0.0, format="%.1f", step=0.1)
+    icd_main = st.number_input(
+        "主診斷 ICD10CM_CODE",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    icd_1 = st.number_input(
+        "次診斷 1 ICD10CM_CODE_1",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    icd_2 = st.number_input(
+        "次診斷 2 ICD10CM_CODE_2",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    icd_3 = st.number_input(
+        "次診斷 3 ICD10CM_CODE_3",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
+
+    icd_4 = st.number_input(
+        "次診斷 4 ICD10CM_CODE_4",
+        value=0.0,
+        format="%.1f",
+        step=0.1
+    )
 
 st.markdown("<hr style='margin-top: 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
@@ -298,11 +361,24 @@ with result_col:
 
         try:
             input_df = pd.DataFrame([input_dict])
-            input_df = input_df[features]
-            input_df = input_df.apply(pd.to_numeric, errors="coerce")
-            input_df = input_df.fillna(median_values)
 
-            prediction = int(model.predict(input_df)[0])
+            # 確保欄位順序與訓練模型時一致
+            input_df = input_df[features]
+
+            # 全部轉成數值
+            input_df = input_df.apply(pd.to_numeric, errors="coerce")
+
+            # 補缺失值
+            if median_values is not None:
+                input_for_model = input_df.fillna(median_values)
+            elif imputer is not None:
+                input_for_model = imputer.transform(input_df)
+            else:
+                st.error("pkl 檔案內沒有 `median_values` 或 `imputer`，無法處理缺失值。請重新產生 pkl。")
+                st.stop()
+
+            # 模型預測
+            prediction = int(model.predict(input_for_model)[0])
             result_text = label_map.get(prediction, "未知類別")
 
             if prediction == 0:
@@ -319,10 +395,11 @@ with result_col:
             </div>
             """, unsafe_allow_html=True)
 
+            # 預測機率
             st.markdown("#### 各類別預測機率")
 
             if hasattr(model, "predict_proba"):
-                proba = model.predict_proba(input_df)[0]
+                proba = model.predict_proba(input_for_model)[0]
 
                 labels = [
                     "類別 1：輕度輔具／單拐等",
