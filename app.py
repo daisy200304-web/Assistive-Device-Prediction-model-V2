@@ -257,7 +257,7 @@ with col2:
     )
 
     address = st.number_input(
-        "居住地代碼 address",
+        "居住地 address",
         value=1.0,
         format="%.1f",
         step=0.1
