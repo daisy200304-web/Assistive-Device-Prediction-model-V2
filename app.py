@@ -138,7 +138,7 @@ div.stButton > button:first-child {
 # ==========================================
 st.markdown("""
 <div class="hero">
-    <div class="hero-title">🦽 臨床智慧輔具需求預測系統</div>
+    <div class="hero-title">🦽輔具需求預測系統</div>
     <div class="hero-subtitle">
         依據個案基本資料、臨床特徵與診斷代碼，預測可能需要的行動輔具類別。
     </div>
