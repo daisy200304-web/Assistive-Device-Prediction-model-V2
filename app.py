@@ -236,7 +236,7 @@ with col2:
     )
 
     func_type = st.number_input(
-        "功能型態 FUNC_TYPE",
+        "門診科別 FUNC_TYPE",
         value=1.0,
         format="%.1f",
         step=0.1
