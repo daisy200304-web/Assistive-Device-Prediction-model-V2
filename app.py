@@ -8,7 +8,7 @@ import os
 # 頁面設定
 # ==========================================
 st.set_page_config(
-    page_title="智慧輔具需求預測系統",
+    page_title="輔具需求預測系統",
     page_icon="🦽",
     layout="wide"
 )
@@ -118,10 +118,6 @@ div.stButton > button:first-child {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
 }
 
-[data-testid="stMetricValue"] {
-    font-size: 24px;
-}
-
 @media print {
     @page {
         size: A4 portrait;
@@ -186,21 +182,10 @@ label_map = pipeline.get(
     }
 )
 
-# 若 pkl 內沒有 model_name，就自動顯示模型類別名稱
-model_name = pipeline.get("model_name", model.__class__.__name__)
-
 # ==========================================
-# 系統說明
-# 已移除「輸入特徵數」欄位
+# 系統提醒
+# 已移除「目前模型」與「預測類別」資訊列
 # ==========================================
-top_col1, top_col2 = st.columns([1, 1])
-
-with top_col1:
-    st.metric("目前模型", model_name)
-
-with top_col2:
-    st.metric("預測類別", "3 類")
-
 st.markdown("""
 <div class="disclaimer">
     ⚠️ 本系統為研究展示與初步風險評估用途，實際輔具處方仍需由臨床專業人員進行完整評估。
