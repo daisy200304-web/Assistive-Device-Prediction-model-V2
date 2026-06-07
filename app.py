@@ -250,7 +250,7 @@ with col2:
     )
 
     official_rank = st.number_input(
-        "官方等級 official rank",
+        "官階 official rank",
         value=1.0,
         format="%.1f",
         step=0.1
